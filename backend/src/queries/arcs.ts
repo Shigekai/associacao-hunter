@@ -11,7 +11,7 @@ export async function findArcs() {
   const { rows } = await pool.query<Arc>(`
     SELECT id, name, start_chapter AS "startChapter", end_chapter AS "endChapter"
     FROM arcs
-    ORDER BY start_chapter
+    ORDER BY start_chapter, id
   `);
   return rows;
 }
