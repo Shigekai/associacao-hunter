@@ -1,5 +1,6 @@
 import type { Request, Response } from 'express';
 import { HttpError } from '../httpError.js';
+import { findCharacterSheet } from '../queries/characterSheet.js';
 import { findCharacters } from '../queries/characters.js';
 
 // validateIds already rejected anything but a valid id, an empty value or no value.
@@ -22,4 +23,13 @@ export async function listCharacters(request: Request, response: Response) {
       affiliationId: optionalId(affiliationId),
     }),
   );
+}
+
+export async function showCharacterSheet(request: Request, response: Response) {
+  // validateIds already rejected anything but a valid id.
+  const sheet = await findCharacterSheet(Number(request.params.characterId));
+  if (!sheet) {
+    throw new HttpError(404, 'Personagem não encontrado');
+  }
+  response.json(sheet);
 }
