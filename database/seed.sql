@@ -1,4 +1,4 @@
--- 1:1 translation of the BD1 seed. Content stays in Portuguese (user-facing).
+-- Translated from the BD1 seed (changes in docs/database.md). Content stays in Portuguese (user-facing).
 -- Foreign keys are resolved by natural key subselects, never hardcoded ids.
 
 INSERT INTO locations (name, type, description) VALUES
@@ -64,12 +64,13 @@ INSERT INTO arcs (name, description, start_chapter, end_chapter) VALUES
 ('Concurso de Sucessão', 'Batalha real no navio Baleia Negra', 349, 400),
 ('Arco Desconhecido', 'História futura de HxH', 401, NULL);
 
-INSERT INTO affiliation_members (character_id, affiliation_id, role, joined_on, left_on) VALUES
-((SELECT id FROM characters WHERE first_name = 'Gon'), (SELECT id FROM affiliations WHERE name = 'Associação Hunter'), 'Hunter', '1999-01-01', NULL),
-((SELECT id FROM characters WHERE first_name = 'Killua'), (SELECT id FROM affiliations WHERE name = 'Família Zoldyck'), 'Herdeiro', '1987-07-07', NULL),
-((SELECT id FROM characters WHERE first_name = 'Chrollo'), (SELECT id FROM affiliations WHERE name = 'Trupe Fantasma'), 'Líder', '1990-01-01', NULL),
-((SELECT id FROM characters WHERE first_name = 'Hisoka'), (SELECT id FROM affiliations WHERE name = 'Trupe Fantasma'), 'Membro #4', '1995-01-01', '1999-09-01'),
-((SELECT id FROM characters WHERE first_name = 'Isaac'), (SELECT id FROM affiliations WHERE name = 'Associação Hunter'), 'Presidente', '1930-01-01', '2000-01-01');
+-- Membership that predates the story starts in the first arc (Exame Hunter).
+INSERT INTO affiliation_members (character_id, affiliation_id, role, joined_arc_id, left_arc_id) VALUES
+((SELECT id FROM characters WHERE first_name = 'Gon'), (SELECT id FROM affiliations WHERE name = 'Associação Hunter'), 'Hunter', (SELECT id FROM arcs WHERE name = 'Exame Hunter'), NULL),
+((SELECT id FROM characters WHERE first_name = 'Killua'), (SELECT id FROM affiliations WHERE name = 'Família Zoldyck'), 'Herdeiro', (SELECT id FROM arcs WHERE name = 'Exame Hunter'), NULL),
+((SELECT id FROM characters WHERE first_name = 'Chrollo'), (SELECT id FROM affiliations WHERE name = 'Trupe Fantasma'), 'Líder', (SELECT id FROM arcs WHERE name = 'Exame Hunter'), NULL),
+((SELECT id FROM characters WHERE first_name = 'Hisoka'), (SELECT id FROM affiliations WHERE name = 'Trupe Fantasma'), 'Membro #4', (SELECT id FROM arcs WHERE name = 'Exame Hunter'), (SELECT id FROM arcs WHERE name = 'Yorknew City')),
+((SELECT id FROM characters WHERE first_name = 'Isaac'), (SELECT id FROM affiliations WHERE name = 'Associação Hunter'), 'Presidente', (SELECT id FROM arcs WHERE name = 'Exame Hunter'), (SELECT id FROM arcs WHERE name = 'Chimera Ant'));
 
 INSERT INTO character_arcs (character_id, arc_id) VALUES
 ((SELECT id FROM characters WHERE first_name = 'Gon'), (SELECT id FROM arcs WHERE name = 'Exame Hunter')),
