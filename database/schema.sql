@@ -30,7 +30,7 @@ CREATE TABLE characters (
     birth_date    DATE,
     sex           VARCHAR(20) CHECK (sex IN ('Masculino', 'Feminino', 'Outro')),
     is_alive      BOOLEAN NOT NULL DEFAULT TRUE,
-    birthplace_id INT NOT NULL REFERENCES locations (id),
+    birthplace_id INT REFERENCES locations (id), -- NULL = not named in the story
     -- Without NULLS NOT DISTINCT, two ('Meruem', NULL) rows would be accepted.
     UNIQUE NULLS NOT DISTINCT (first_name, last_name)
 );
