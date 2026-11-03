@@ -1,10 +1,14 @@
 # Database
 
-Hunter × Hunter Nen system, designed in BD1 and translated 1:1 to English: same 19 tables, relationships and 65 constraints (11 CHECK, 27 FK, 19 PK, 8 UNIQUE).
+Hunter × Hunter Nen system, designed in BD1 and translated to English: same 19 tables; 66 constraints (10 CHECK, 29 FK, 19 PK, 8 UNIQUE) after the change below.
+
+One deliberate change from BD1: affiliation membership is marked by arc, not by date. Arcs are the story's only timeline, so filtering by affiliation and arc together needs membership in arc terms. The seed also gained 3 canon `character_arcs` rows (Hisoka in Yorknew City and Greed Island, Chrollo in Yorknew City) so arc filters have cases to show.
 
 - Files: `database/schema.sql`, `database/seed.sql`. Requires PostgreSQL ≥ 15 (`UNIQUE NULLS NOT DISTINCT`).
 - Local setup: `createdb associacao_hunter && psql -v ON_ERROR_STOP=1 -d associacao_hunter -f database/schema.sql -f database/seed.sql`.
-- Derived attributes are computed in queries, not stored: affiliation member count, arc chapter count, membership status (`left_on IS NULL` = active).
+- Derived attributes are computed in queries, not stored: affiliation member count, arc chapter count, membership status (`left_arc_id IS NULL` = active).
+- Member during arc X: `joined_arc.start_chapter <= X.start_chapter` and (`left_arc_id IS NULL` or `left_arc.start_chapter >= X.start_chapter`). Inclusive: leaving during an arc still counts as member in it.
+- Joined arc ≤ left arc is not a CHECK (it needs `arcs`); the data keeps it.
 
 ## Relationships
 
@@ -16,6 +20,7 @@ erDiagram
     characters ||--o{ character_nicknames : ""
     characters ||--o{ affiliation_members : ""
     affiliations ||--o{ affiliation_members : ""
+    arcs ||--o{ affiliation_members : "joined / left"
     characters ||--o{ character_arcs : ""
     arcs ||--o{ character_arcs : ""
     characters ||--o{ abilities : "owns"
@@ -48,7 +53,7 @@ Primary keys became `id`; foreign keys `<entity>_id`. Columns not listed keep th
 | Personagem | characters | primeiroNome → first_name, segundoNome → last_name, dataNascimento → birth_date, sexo → sex, estaVivo → is_alive, id_local → birthplace_id |
 | Apelido_Personagem | character_nicknames | apelido → nickname |
 | Arco | arcs | capituloInicial → start_chapter, capituloFinal → end_chapter |
-| Membro_Filiacao | affiliation_members | cargo → role, dataIngresso → joined_on, dataSaida → left_on |
+| Membro_Filiacao | affiliation_members | cargo → role, dataIngresso → joined_arc_id, dataSaida → left_arc_id (date became arc) |
 | Personagem_Arco | character_arcs | — |
 | Habilidade | abilities | id_personagem → owner_id |
 | HabilidadeNen | nen_abilities | id_habilidade → ability_id, tipoHatsu → hatsu_type, custoAura → aura_cost |

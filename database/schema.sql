@@ -1,7 +1,7 @@
--- Hunter x Hunter Nen system. 1:1 translation of the BD1 schema (see docs/database.md).
+-- Hunter x Hunter Nen system. Translated from the BD1 schema (changes in docs/database.md).
 -- Requires PostgreSQL >= 15 (UNIQUE NULLS NOT DISTINCT).
 -- A CHECK only fails when it evaluates to FALSE, so nullable columns
--- (end_chapter, left_on, winner_id) pass their CHECKs when NULL.
+-- (end_chapter, winner_id) pass their CHECKs when NULL.
 
 CREATE TABLE locations (
     id          SERIAL PRIMARY KEY,
@@ -50,14 +50,14 @@ CREATE TABLE arcs (
     CHECK (end_chapter >= start_chapter)
 );
 
+-- Joined arc <= left arc can't be a CHECK (it needs arcs.start_chapter); the data keeps it.
 CREATE TABLE affiliation_members (
     character_id   INT NOT NULL REFERENCES characters (id)   ON DELETE CASCADE,
     affiliation_id INT NOT NULL REFERENCES affiliations (id) ON DELETE CASCADE,
     role           VARCHAR(50) NOT NULL,
-    joined_on      DATE NOT NULL,
-    left_on        DATE, -- NULL = active member
-    PRIMARY KEY (character_id, affiliation_id),
-    CHECK (left_on >= joined_on)
+    joined_arc_id  INT NOT NULL REFERENCES arcs (id),
+    left_arc_id    INT REFERENCES arcs (id), -- NULL = active member
+    PRIMARY KEY (character_id, affiliation_id)
 );
 
 CREATE TABLE character_arcs (
