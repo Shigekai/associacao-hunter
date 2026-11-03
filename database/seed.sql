@@ -1,5 +1,7 @@
 -- Translated from the BD1 seed (changes in docs/database.md). Content stays in Portuguese (user-facing).
 -- Foreign keys are resolved by natural key subselects, never hardcoded ids.
+-- TODO: characters are looked up by first_name only, not by their (first_name, last_name) key;
+-- fix before two characters share a first name.
 
 INSERT INTO locations (name, type, description) VALUES
 ('Ilha da Baleia', 'Ilha', 'Pequena ilha no oceano, lar de Gon'),
