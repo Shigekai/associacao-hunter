@@ -77,7 +77,10 @@ INSERT INTO character_arcs (character_id, arc_id) VALUES
 ((SELECT id FROM characters WHERE first_name = 'Killua'), (SELECT id FROM arcs WHERE name = 'Família Zoldyck')),
 ((SELECT id FROM characters WHERE first_name = 'Kurapika'), (SELECT id FROM arcs WHERE name = 'Yorknew City')),
 ((SELECT id FROM characters WHERE first_name = 'Gon'), (SELECT id FROM arcs WHERE name = 'Greed Island')),
-((SELECT id FROM characters WHERE first_name = 'Meruem'), (SELECT id FROM arcs WHERE name = 'Chimera Ant'));
+((SELECT id FROM characters WHERE first_name = 'Meruem'), (SELECT id FROM arcs WHERE name = 'Chimera Ant')),
+((SELECT id FROM characters WHERE first_name = 'Hisoka'), (SELECT id FROM arcs WHERE name = 'Yorknew City')),
+((SELECT id FROM characters WHERE first_name = 'Hisoka'), (SELECT id FROM arcs WHERE name = 'Greed Island')),
+((SELECT id FROM characters WHERE first_name = 'Chrollo'), (SELECT id FROM arcs WHERE name = 'Yorknew City'));
 
 INSERT INTO abilities (name, description, owner_id) VALUES
 ('Jajanken', 'Ataque baseado em pedra-papel-tesoura', (SELECT id FROM characters WHERE first_name = 'Gon')),
