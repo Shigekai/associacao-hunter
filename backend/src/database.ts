@@ -1,5 +1,8 @@
-import { Pool } from 'pg';
+import { Pool, types } from 'pg';
 import { config } from './config.js';
+
+// DATE stays as 'YYYY-MM-DD': parsing it into a JS Date would shift the day with the server time zone.
+types.setTypeParser(types.builtins.DATE, (value) => value);
 
 export const pool = new Pool({
   connectionString: config.databaseUrl,
