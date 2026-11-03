@@ -1,8 +1,11 @@
 # Database
 
-Hunter × Hunter Nen system, designed in BD1 and translated to English: same 19 tables; 66 constraints (10 CHECK, 29 FK, 19 PK, 8 UNIQUE) after the change below.
+Hunter × Hunter Nen system, designed in BD1 and translated to English: same 19 tables; 66 constraints (10 CHECK, 29 FK, 19 PK, 8 UNIQUE) after the changes below.
 
-One deliberate change from BD1: affiliation membership is marked by arc, not by date. Arcs are the story's only timeline, so filtering by affiliation and arc together needs membership in arc terms. The seed also gained 3 canon `character_arcs` rows (Hisoka in Yorknew City and Greed Island, Chrollo in Yorknew City) so arc filters have cases to show.
+Two deliberate changes from BD1:
+
+- Affiliation membership is marked by arc, not by date. Arcs are the story's only timeline, so filtering by affiliation and arc together needs membership in arc terms.
+- `characters.birthplace_id` is optional: the story never says where Leorio, Hisoka or Netero were born.
 
 - Files: `database/schema.sql`, `database/seed.sql`. Requires PostgreSQL ≥ 15 (`UNIQUE NULLS NOT DISTINCT`).
 - Local setup: `createdb associacao_hunter && psql -v ON_ERROR_STOP=1 -d associacao_hunter -f database/schema.sql -f database/seed.sql`.
@@ -14,7 +17,7 @@ One deliberate change from BD1: affiliation membership is marked by arc, not by 
 
 ```mermaid
 erDiagram
-    locations ||--o{ characters : "birthplace"
+    locations |o--o{ characters : "birthplace"
     affiliations ||--o{ affiliation_locations : ""
     locations ||--o{ affiliation_locations : ""
     characters ||--o{ character_nicknames : ""
@@ -67,12 +70,39 @@ Primary keys became `id`; foreign keys `<entity>_id`. Columns not listed keep th
 | Afinidade_Nen | nen_affinities | id_categoria_origem → source_category_id, id_categoria_destino → target_category_id, percentual → efficiency_percent |
 | Combate | fights | id_personagem_a → fighter_a_id, id_personagem_b → fighter_b_id, id_vencedor → winner_id, id_local → location_id, data → fought_on, duracao → duration_minutes |
 
-## Known gaps in the seed
+## Seed
 
-The seed only met BD1's minimums; it will be repopulated from the HxH wiki.
+Source: the HxH Fandom wiki (MediaWiki API, English), read in November 2026. 9 characters: Gon, Killua, Kurapika, Leorio, Hisoka, Illumi, Chrollo, Netero, Neferpitou.
 
-- Invented data: 4 non-canon Nen categories, forced birthplaces (`birthplace_id` is required), fictional dates, "Nen Stitches" assigned to Hisoka (it's Machi's).
-- `nen_affinities` has 5 of the 30 pairs among the 6 canon categories.
-- Free-text domains (`hatsu_type`, `nen_conditions.type`, `locations.type`) mix concepts; poor for filters.
+| Data | Rule |
+|---|---|
+| Arcs | The wiki's 7, by chapter. The Succession Contest (340–) is ongoing and includes the expedition |
+| Memberships | Recorded up to the end of the Chimera Ant arc (Formigas Quimera), the reference of the licensed hunter seal. One that predates the story starts in the first arc (Exame Hunter), such as Netero's presidency; a death ends one in that arc |
+| `character_arcs` | Arcs with a plot section on the character's wiki page, none after their death |
+| `item_arcs`, `ability_arcs` | The arc where the item or ability first appears |
+| Birthplace | Where the character was raised, per their page; `NULL` when the story doesn't say |
+| `nen_affinities` | Nen chart (chapter 108): 80 next to the source on the hexagon, 60 two steps away, 40 opposite; 0 into Specialization unless the source is a Specialist. Categories are inserted in hexagon order, since the sheet lists efficiency by id |
+| Names | Abilities, items and nicknames translate the wiki's English names to Portuguese; puns and Japanese terms stay (Jajanken, Bungee Gum, Danchou) |
+
+Closed value lists, kept by convention (a CHECK would change BD1's constraint count):
+
+| Column | Values |
+|---|---|
+| `locations.type` | Ilha, Montanha, Floresta, Cidade, País, Prédio |
+| `nen_abilities.hatsu_type` | Ataque, Controle, Estado ativado, Objeto materializado, Propriedade da aura |
+| `nen_conditions.type` | Gatilho (what activates it), Restrição (usage limit), Custo (what it costs), Juramento (vow with a penalty) |
+| `nen_abilities.aura_cost` | 1–5, estimated from the wiki's description: 1 light or continuous use, 3 regular strike, 5 extreme cost (life, all future Nen) |
+
+Invented or approximate values:
+
+- Hisoka's birth year (1972); the story gives only June 6.
+- Every `aura_cost`: the story gives no figures.
+- Fight dates and durations. Gon × Hisoka: July 1999. Gon × Neferpitou: July 2000 (the wiki doesn't date the palace invasion). Chrollo × Hisoka: July 21, 2001 (the wiki's Timeline places it between July 4 and August 7).
+- Kurapika is an active Kurta Clan member: the clan ended before the story, so there is no arc for him to leave in.
+- A Specialist's efficiency in the other categories follows hexagon distance; the wiki is ambiguous there.
+
+## Known gaps
+
 - `fights` has no arc; death (`is_alive`) has no arc.
-- `items.name` is unique per owner only: seed lookups by item name break once two owners share a name.
+- The closed value lists are not enforced by the database.
+- Every seeded character has a main Nen category, so the sheet's all-`null` efficiency has no example.

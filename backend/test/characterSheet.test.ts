@@ -2,7 +2,7 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { app } from '../src/app.js';
 import type { CharacterSheet } from '../src/queries/characterSheet.js';
-import { characterIds, nenCategories } from './mocks/seed.js';
+import { characterIds } from './mocks/seed.js';
 
 const gonSheet: CharacterSheet = {
   character: {
@@ -17,40 +17,59 @@ const gonSheet: CharacterSheet = {
     isLicensedHunter: true,
   },
   nen: {
-    categories: [{ name: 'Reforço', affinityType: 'Principal' }],
+    categories: [{ name: 'Intensificação', affinityType: 'Principal' }],
     efficiency: [
-      { category: 'Reforço', percent: 100 },
-      { category: 'Emissão', percent: 80 },
-      { category: 'Transformação', percent: 80 },
-      { category: 'Manipulação', percent: null },
-      { category: 'Materialização', percent: null },
+      { category: 'Intensificação', percent: 100 },
+      { category: 'Transmutação', percent: 80 },
+      { category: 'Materialização', percent: 60 },
       { category: 'Especialização', percent: 0 },
-      { category: 'Reforço Focado', percent: null },
-      { category: 'Materialização Simbiótica', percent: null },
-      { category: 'Manipulação Coercitiva', percent: null },
-      { category: 'Especialização Divinatória', percent: null },
+      { category: 'Manipulação', percent: 60 },
+      { category: 'Emissão', percent: 80 },
     ],
   },
   abilities: [
     {
       name: 'Jajanken',
-      description: 'Ataque baseado em pedra-papel-tesoura',
-      hatsuType: 'Ataque Fisico',
-      auraCost: 500,
-      categories: ['Reforço'],
-      conditions: [{ description: 'Dizer "Pedra, Papel, Tesoura" em voz alta', type: 'Tempo/Fala' }],
+      description:
+        'Golpe inspirado no pedra-papel-tesoura: pedra é um soco de Intensificação, tesoura uma lâmina de Transmutação e papel um disparo de Emissão',
+      hatsuType: 'Ataque',
+      auraCost: 3,
+      categories: ['Intensificação', 'Transmutação', 'Emissão'],
+      conditions: [
+        { description: 'Concentrar a aura leva tempo e deixa a guarda aberta', type: 'Restrição' },
+        { description: 'Recitar o canto do pedra-papel-tesoura antes do golpe', type: 'Gatilho' },
+      ],
+    },
+    {
+      name: 'Transformação por Restrição',
+      description:
+        'Por um juramento feito em desespero, Gon envelhece até a idade capaz de vencer Neferpitou e libera todo o seu potencial',
+      hatsuType: 'Estado ativado',
+      auraCost: 5,
+      categories: ['Intensificação'],
+      conditions: [{ description: 'Entrega todo o potencial de Nen em troca do poder imediato', type: 'Custo' }],
     },
   ],
   items: [
-    { name: 'Licença Hunter', description: 'Cartão de altíssimo valor e acesso', isNen: false, conjuredBy: null, categories: [] },
-    { name: 'Vara de Pescar', description: 'Vara antiga usada por Ging', isNen: false, conjuredBy: null, categories: [] },
+    {
+      name: 'Vara de Pescar',
+      description: 'Vara de pesca telescópica que Gon usa como arma desde o Exame Hunter',
+      isNen: false,
+      conjuredBy: null,
+      categories: [],
+    },
   ],
   affiliations: [
     { name: 'Associação Hunter', type: 'Organização', role: 'Hunter', joinedArc: 'Exame Hunter', leftArc: null, isActive: true },
   ],
   arcs: [
-    { number: 1, name: 'Exame Hunter', startChapter: 1, endChapter: 38 },
-    { number: 5, name: 'Greed Island', startChapter: 120, endChapter: 185 },
+    { number: 1, name: 'Exame Hunter', startChapter: 1, endChapter: 43 },
+    { number: 2, name: 'Torre Celestial', startChapter: 44, endChapter: 63 },
+    { number: 3, name: 'Yorknew City', startChapter: 64, endChapter: 119 },
+    { number: 4, name: 'Greed Island', startChapter: 120, endChapter: 185 },
+    { number: 5, name: 'Formigas Quimera', startChapter: 186, endChapter: 318 },
+    { number: 6, name: 'Eleição do Presidente', startChapter: 319, endChapter: 339 },
+    { number: 7, name: 'Concurso de Sucessão', startChapter: 340, endChapter: null },
   ],
 };
 
@@ -69,67 +88,106 @@ describe('GET /characters/:characterId', () => {
   it('lists nicknames, conditions by description and the ability that conjured an item', async () => {
     const sheet = await getSheet('Chrollo');
 
-    expect(sheet.character.nicknames).toEqual(['Danchou']);
+    expect(sheet.character.nicknames).toEqual(['Chro', 'Danchou']);
     expect(sheet.abilities[0].conditions.map(({ description }) => description)).toEqual([
-      'Colocar a mão no livro aberto',
-      'Explicar a habilidade para a vítima',
-      'Saber o nome do alvo',
-      'Ver a habilidade sendo usada antes',
+      'Cumprir as três condições em até uma hora',
+      'Fazer perguntas sobre a habilidade e ouvir a resposta',
+      'O dono põe a mão na capa do livro',
+      'Ver a habilidade sendo usada',
     ]);
     expect(sheet.items).toContainEqual({
-      name: 'Bandit Secret',
-      description: 'Livro contendo habilidades roubadas',
+      name: 'Segredo do Ladrão',
+      description: 'Livro materializado que guarda as habilidades roubadas, uma por página',
       isNen: true,
-      conjuredBy: 'Skill Hunter',
+      conjuredBy: 'Caçador de Habilidades',
       categories: ['Especialização'],
     });
   });
 
-  it('reads an affinity pair in its stored direction only', async () => {
+  it('reads the efficiency outward from the main category', async () => {
     const { nen } = await getSheet('Chrollo');
 
-    expect(nen.efficiency).toContainEqual({ category: 'Manipulação', percent: 80 });
-    expect(nen.efficiency).toContainEqual({ category: 'Reforço', percent: null });
+    // Gon (Intensificação) gets 0 in Especialização; this direction of the pair is 40.
+    expect(nen.efficiency).toEqual([
+      { category: 'Intensificação', percent: 40 },
+      { category: 'Transmutação', percent: 60 },
+      { category: 'Materialização', percent: 80 },
+      { category: 'Especialização', percent: 100 },
+      { category: 'Manipulação', percent: 80 },
+      { category: 'Emissão', percent: 60 },
+    ]);
+  });
+
+  it('lists the main category before a secondary one, and the categories of the ability that conjured an item', async () => {
+    const sheet = await getSheet('Kurapika');
+
+    expect(sheet.nen.categories).toEqual([
+      { name: 'Materialização', affinityType: 'Principal' },
+      { name: 'Especialização', affinityType: 'Secundária' },
+    ]);
+    expect(sheet.abilities).toHaveLength(6);
+    expect(sheet.items).toContainEqual({
+      name: 'Corrente do Polegar',
+      description: 'Corrente com uma cruz na ponta, ligada ao polegar direito',
+      isNen: true,
+      conjuredBy: 'Corrente da Cura',
+      categories: ['Intensificação', 'Materialização'],
+    });
   });
 
   it('returns an ability without conditions with an empty list', async () => {
-    const { abilities } = await getSheet('Meruem');
+    const { abilities } = await getSheet('Hisoka');
 
-    expect(abilities[0].conditions).toEqual([]);
+    expect(abilities[0]).toMatchObject({ name: 'Bungee Gum', conditions: [] });
+  });
+
+  it('returns an ability outside Nen without hatsu fields', async () => {
+    const { abilities } = await getSheet('Killua');
+
+    expect(abilities).toContainEqual({
+      name: 'Eco Rítmico',
+      description: 'Técnica de assassino: passos em ritmo variado criam imagens residuais para confundir o adversário',
+      hatsuType: null,
+      auraCost: null,
+      categories: [],
+      conditions: [],
+    });
   });
 
   it('returns a Nen item that no ability conjured without categories', async () => {
     const { items } = await getSheet('Killua');
 
     expect(items).toContainEqual({
-      name: 'Anel de Paladino',
-      description: 'Remove maldições',
+      name: 'Colar do Paladino',
+      description: 'Carta de Greed Island que vira um colar e anula maldições',
       isNen: true,
       conjuredBy: null,
       categories: [],
     });
   });
 
-  it('keeps a membership that ended, without the seal', async () => {
+  it('keeps a membership that ended, without the seal, and the data the story leaves out as null', async () => {
     const sheet = await getSheet('Isaac');
 
-    expect(sheet.character.isLicensedHunter).toBe(false);
-    expect(sheet.character.isAlive).toBe(false);
+    expect(sheet.character).toMatchObject({
+      isLicensedHunter: false,
+      isAlive: false,
+      birthDate: null,
+      birthplace: null,
+    });
     expect(sheet.affiliations).toEqual([
-      { name: 'Associação Hunter', type: 'Organização', role: 'Presidente', joinedArc: 'Exame Hunter', leftArc: 'Chimera Ant', isActive: false },
+      { name: 'Associação Hunter', type: 'Organização', role: 'Presidente', joinedArc: 'Exame Hunter', leftArc: 'Formigas Quimera', isActive: false },
     ]);
   });
 
-  it('returns empty sections and every efficiency as null without a main category', async () => {
-    const sheet = await getSheet('Ging');
+  it('returns no items and a membership that starts and ends in the same arc', async () => {
+    const sheet = await getSheet('Neferpitou');
 
-    expect(sheet.nen).toEqual({
-      categories: [],
-      efficiency: nenCategories.map(({ name }) => ({ category: name, percent: null })),
-    });
-    expect(sheet.abilities).toEqual([]);
-    expect(sheet.affiliations).toEqual([]);
-    expect(sheet.arcs).toEqual([]);
+    expect(sheet.character.sex).toBeNull();
+    expect(sheet.items).toEqual([]);
+    expect(sheet.affiliations).toEqual([
+      { name: 'Formigas Quimera', type: 'Espécie', role: 'Guarda Real', joinedArc: 'Formigas Quimera', leftArc: 'Formigas Quimera', isActive: false },
+    ]);
   });
 
   it('answers 404 for a character that does not exist', async () => {
