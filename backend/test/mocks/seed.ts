@@ -1,5 +1,6 @@
 import type { Affiliation } from '../../src/queries/affiliations.js';
 import type { Arc } from '../../src/queries/arcs.js';
+import type { CharacterSummary } from '../../src/queries/characters.js';
 import type { NenCategory } from '../../src/queries/nenCategories.js';
 
 // Rows as the select endpoints return them (same order); ids follow the SERIAL order of seed.sql.
@@ -40,6 +41,20 @@ export const affiliations: Affiliation[] = [
   { id: 7, name: 'Shadow Beasts', type: 'Máfia' },
   { id: 2, name: 'Trupe Fantasma', type: 'Gangue' },
   { id: 8, name: 'Zodíacos', type: 'Conselho' },
+];
+
+// Rows as GET /characters returns them with no filter, ordered by first name.
+export const characters: CharacterSummary[] = [
+  { id: 10, firstName: 'Biscuit', lastName: 'Krueger', birthDate: '1943-09-09', sex: 'Feminino', birthplace: 'Greed Island', nenCategory: null, affiliations: [], hatsus: ['Cookie-chan'], isLicensedHunter: false },
+  { id: 6, firstName: 'Chrollo', lastName: 'Lucilfer', birthDate: '1973-11-11', sex: 'Masculino', birthplace: 'Meteor City', nenCategory: 'Especialização', affiliations: ['Trupe Fantasma'], hatsus: ['Skill Hunter'], isLicensedHunter: false },
+  { id: 9, firstName: 'Ging', lastName: 'Freecss', birthDate: '1967-08-08', sex: 'Masculino', birthplace: 'Ilha da Baleia', nenCategory: null, affiliations: [], hatsus: [], isLicensedHunter: false },
+  { id: 1, firstName: 'Gon', lastName: 'Freecss', birthDate: '1987-05-05', sex: 'Masculino', birthplace: 'Ilha da Baleia', nenCategory: 'Reforço', affiliations: ['Associação Hunter'], hatsus: ['Jajanken'], isLicensedHunter: true },
+  { id: 5, firstName: 'Hisoka', lastName: 'Morow', birthDate: '1973-06-06', sex: 'Masculino', birthplace: 'Zaban City', nenCategory: 'Transformação', affiliations: [], hatsus: ['Bungee Gum', 'Nen Stitches'], isLicensedHunter: false },
+  { id: 7, firstName: 'Isaac', lastName: 'Netero', birthDate: '1890-01-01', sex: 'Masculino', birthplace: 'Zaban City', nenCategory: null, affiliations: [], hatsus: ['100-Type Guanyin'], isLicensedHunter: false },
+  { id: 2, firstName: 'Killua', lastName: 'Zoldyck', birthDate: '1987-07-07', sex: 'Masculino', birthplace: 'Montanha Kukuroo', nenCategory: 'Transformação', affiliations: ['Família Zoldyck'], hatsus: ['Kanmuru'], isLicensedHunter: false },
+  { id: 3, firstName: 'Kurapika', lastName: 'Kurta', birthDate: '1982-04-04', sex: 'Masculino', birthplace: 'Zaban City', nenCategory: 'Materialização', affiliations: [], hatsus: ['Emperor Time'], isLicensedHunter: false },
+  { id: 4, firstName: 'Leorio', lastName: 'Paradinight', birthDate: '1978-03-03', sex: 'Masculino', birthplace: 'Zaban City', nenCategory: null, affiliations: [], hatsus: ['Warp Punch'], isLicensedHunter: false },
+  { id: 8, firstName: 'Meruem', lastName: null, birthDate: '1999-05-01', sex: 'Masculino', birthplace: 'NGL', nenCategory: null, affiliations: [], hatsus: ['Aura Cannons'], isLicensedHunter: false },
 ];
 
 function idsByName(rows: { id: number; name: string }[]): Record<string, number> {
