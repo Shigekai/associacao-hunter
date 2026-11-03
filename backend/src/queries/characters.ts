@@ -20,6 +20,17 @@ export type CharacterFilters = {
   affiliationId: number | null;
 };
 
+// Seal rule shared by the list and the sheet: an active member of the Hunter Association. Needs `characters c`.
+export const isLicensedHunterSql = `
+  EXISTS (
+    SELECT 1
+    FROM affiliation_members am
+    JOIN affiliations af ON af.id = am.affiliation_id
+    WHERE am.character_id = c.id
+      AND af.name = 'Associação Hunter'
+      AND am.left_arc_id IS NULL
+  )`;
+
 // Backslash is LIKE's default escape: the search term matches literally, so '%' is not "everything".
 function containsPattern(term: string) {
   return `%${term.replace(/[\\%_]/g, '\\$&')}%`;
@@ -58,14 +69,7 @@ export async function findCharacters({ name, arcId, categoryId, affiliationId }:
         WHERE a.owner_id = c.id
         ORDER BY a.name
       ) AS hatsus,
-      EXISTS (
-        SELECT 1
-        FROM affiliation_members am
-        JOIN affiliations af ON af.id = am.affiliation_id
-        WHERE am.character_id = c.id
-          AND af.name = 'Associação Hunter'
-          AND am.left_arc_id IS NULL
-      ) AS "isLicensedHunter"
+      ${isLicensedHunterSql} AS "isLicensedHunter"
     FROM characters c
     JOIN locations birthplace ON birthplace.id = c.birthplace_id
     WHERE ($1::text IS NULL
