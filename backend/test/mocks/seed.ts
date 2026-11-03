@@ -64,3 +64,6 @@ function idsByName(rows: { id: number; name: string }[]): Record<string, number>
 export const arcIds = idsByName(arcs);
 export const categoryIds = idsByName(nenCategories);
 export const affiliationIds = idsByName(affiliations);
+export const characterIds: Record<string, number> = Object.fromEntries(
+  characters.map(({ id, firstName }) => [firstName, id]),
+);
