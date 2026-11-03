@@ -9,7 +9,7 @@ type CharacterDetails = {
   birthDate: string | null;
   sex: string | null;
   isAlive: boolean;
-  birthplace: string;
+  birthplace: string | null;
   isLicensedHunter: boolean;
 };
 
@@ -87,7 +87,7 @@ async function findCharacter(characterId: number): Promise<CharacterDetails | un
       birthplace.name AS birthplace,
       ${isLicensedHunterSql} AS "isLicensedHunter"
     FROM characters c
-    JOIN locations birthplace ON birthplace.id = c.birthplace_id
+    LEFT JOIN locations birthplace ON birthplace.id = c.birthplace_id
     WHERE c.id = $1
     `,
     [characterId],

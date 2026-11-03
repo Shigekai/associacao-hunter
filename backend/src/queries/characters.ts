@@ -6,7 +6,7 @@ export type CharacterSummary = {
   lastName: string | null;
   birthDate: string | null;
   sex: string | null;
-  birthplace: string;
+  birthplace: string | null;
   nenCategory: string | null;
   affiliations: string[];
   hatsus: string[];
@@ -71,7 +71,7 @@ export async function findCharacters({ name, arcId, categoryId, affiliationId }:
       ) AS hatsus,
       ${isLicensedHunterSql} AS "isLicensedHunter"
     FROM characters c
-    JOIN locations birthplace ON birthplace.id = c.birthplace_id
+    LEFT JOIN locations birthplace ON birthplace.id = c.birthplace_id
     WHERE ($1::text IS NULL
         OR concat_ws(' ', c.first_name, c.last_name) ILIKE $1
         OR EXISTS (
