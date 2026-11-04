@@ -7,3 +7,25 @@ export function mockFetch(result: Response | Error) {
   vi.stubGlobal('fetch', fetchMock);
   return fetchMock;
 }
+
+type PendingRequest = {
+  url: string;
+  signal: AbortSignal | undefined;
+  respond: (response: Response) => void;
+};
+
+export function mockFetchQueue() {
+  const requests: PendingRequest[] = [];
+  const fetchMock = vi.fn<typeof fetch>(
+    (input, init) =>
+      new Promise((resolve, reject) => {
+        const signal = init?.signal ?? undefined;
+        signal?.addEventListener('abort', () =>
+          reject(new DOMException('Aborted', 'AbortError')),
+        );
+        requests.push({ url: String(input), signal, respond: resolve });
+      }),
+  );
+  vi.stubGlobal('fetch', fetchMock);
+  return { fetchMock, requests };
+}

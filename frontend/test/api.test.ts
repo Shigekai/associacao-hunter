@@ -1,6 +1,49 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { isApiReady } from '@/lib/api';
+import {
+  getAffiliations,
+  getArcs,
+  getNenCategories,
+  isApiReady,
+  searchCharacters,
+} from '@/lib/api';
 import { mockFetch } from './mocks/fetch';
+
+describe('API reads', () => {
+  beforeEach(() => {
+    vi.stubEnv('API_URL', 'http://api.test');
+  });
+
+  it.each([
+    ['arcs', getArcs, '/arcs'],
+    ['Nen categories', getNenCategories, '/nen-categories'],
+    ['affiliations', getAffiliations, '/affiliations'],
+  ])('reads the %s', async (_, read, path) => {
+    const fetchMock = mockFetch(Response.json([{ id: 1, name: 'Item' }]));
+
+    expect(await read()).toEqual([{ id: 1, name: 'Item' }]);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `http://api.test${path}`,
+      expect.anything(),
+    );
+  });
+
+  it('searches characters by an encoded name', async () => {
+    const fetchMock = mockFetch(Response.json([]));
+
+    await searchCharacters('Gon Freecss');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://api.test/characters?name=Gon+Freecss',
+      expect.anything(),
+    );
+  });
+
+  it('throws when the API answers an error', async () => {
+    mockFetch(new Response(null, { status: 500 }));
+
+    await expect(getArcs()).rejects.toThrow('API request failed: 500 /arcs');
+  });
+});
 
 describe('isApiReady', () => {
   beforeEach(() => {
