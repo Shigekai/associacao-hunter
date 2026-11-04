@@ -5,6 +5,7 @@ Hunter Association app (UNESP BD2) over the Hunter × Hunter database from BD1.
 | What | Where |
 |---|---|
 | Docs, naming, styling, testing rules | `docs/docs.md`, `docs/naming.md`, `docs/styling.md`, `docs/testing.md` |
+| Frontend data flow and screen behavior | `docs/frontend.md` |
 | Assignment / database reference | `docs/assignment.md`, `docs/database.md` |
 | Schema and seed | `database/schema.sql`, `database/seed.sql` |
 | Node version | 24 (`.nvmrc`, `nvm use`) |
