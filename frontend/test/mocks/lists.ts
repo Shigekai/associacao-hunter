@@ -25,6 +25,7 @@ export function character(
   id: number,
   firstName: string,
   lastName: string | null,
+  overrides: Partial<CharacterSummary> = {},
 ): CharacterSummary {
   return {
     id,
@@ -37,6 +38,7 @@ export function character(
     affiliations: [],
     hatsus: [],
     isLicensedHunter: false,
+    ...overrides,
   };
 }
 
