@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/Button';
 import type { Affiliation, Arc, NenCategory } from '@/lib/api';
+import { huntersPath } from '@/lib/utils';
 import { NameCombobox } from './NameCombobox';
 import { SelectField } from './SelectField';
 
@@ -22,20 +23,6 @@ const emptyValues: SearchValues = {
   categoryId: '',
   affiliationId: '',
 };
-
-function searchUrl({ name, ...ids }: SearchValues) {
-  const params = new URLSearchParams();
-  if (name.trim()) {
-    params.set('name', name.trim());
-  }
-  for (const [key, value] of Object.entries(ids)) {
-    if (value) {
-      params.set(key, value);
-    }
-  }
-  const query = params.toString();
-  return query ? `/hunters?${query}` : '/hunters';
-}
 
 type SearchFormProps = {
   arcs: Arc[];
@@ -57,7 +44,7 @@ export function SearchForm({
       initialValues={emptyValues}
       onSubmit={(values) => {
         resetCombobox();
-        router.push(searchUrl(values));
+        router.push(huntersPath(values));
       }}
       onReset={resetCombobox}
     >

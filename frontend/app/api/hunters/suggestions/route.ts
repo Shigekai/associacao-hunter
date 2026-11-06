@@ -1,5 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { searchCharacters } from '@/lib/api';
+import { fullName } from '@/lib/utils';
 
 const suggestionLimit = 5;
 
@@ -18,15 +19,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const characters = await searchCharacters(name);
+    const characters = (await searchCharacters({ name })) ?? [];
     return Response.json({
       total: characters.length,
       suggestions: characters
         .slice(0, suggestionLimit)
-        .map(({ id, firstName, lastName }) => ({
-          id,
-          name: [firstName, lastName].filter(Boolean).join(' '),
-        })),
+        .map((character) => ({ id: character.id, name: fullName(character) })),
     } satisfies NameSuggestions);
   } catch (error) {
     console.error('Name suggestions failed', error);

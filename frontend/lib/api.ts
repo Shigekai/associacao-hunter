@@ -1,5 +1,6 @@
 import 'server-only';
 import { connection } from 'next/server';
+import { withFilters, type SearchFilters } from '@/lib/utils';
 
 const requestTimeoutMs = 60_000;
 
@@ -55,15 +56,22 @@ export async function isApiReady() {
   }
 }
 
-async function getJson<T>(path: string): Promise<T> {
+async function apiFetch(path: string) {
   await connection();
-  const response = await fetch(apiUrl(path), {
+  return fetch(apiUrl(path), {
     signal: AbortSignal.timeout(requestTimeoutMs),
   });
+}
+
+async function readJson<T>(response: Response, path: string): Promise<T> {
   if (!response.ok) {
     throw new Error(`API request failed: ${response.status} ${path}`);
   }
   return (await response.json()) as T;
+}
+
+async function getJson<T>(path: string): Promise<T> {
+  return readJson<T>(await apiFetch(path), path);
 }
 
 export function getArcs() {
@@ -78,8 +86,13 @@ export function getAffiliations() {
   return getJson<Affiliation[]>('/affiliations');
 }
 
-export function searchCharacters(name: string) {
-  return getJson<CharacterSummary[]>(
-    `/characters?${new URLSearchParams({ name })}`,
-  );
+export async function searchCharacters(
+  filters: SearchFilters,
+): Promise<CharacterSummary[] | null> {
+  const path = withFilters('/characters', filters);
+  const response = await apiFetch(path);
+  if (response.status === 400) {
+    return null;
+  }
+  return readJson<CharacterSummary[]>(response, path);
 }
