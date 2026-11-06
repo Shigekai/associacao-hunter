@@ -1,16 +1,8 @@
 import { redirect } from 'next/navigation';
 import { isApiReady } from '@/lib/api';
 
-// Keeps the opening screen up even when the API answers at once.
-const minimumLoadingMs = 4_000;
-
-function wait(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 export async function HealthGate() {
-  const [ready] = await Promise.all([isApiReady(), wait(minimumLoadingMs)]);
-  if (ready) {
+  if (await isApiReady()) {
     redirect('/search');
   }
 
