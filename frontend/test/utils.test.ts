@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { huntersPath, readFilters, slugify } from '@/lib/utils';
+import {
+  arcNumber,
+  birthDay,
+  huntersPath,
+  readFilters,
+  slugify,
+} from '@/lib/utils';
 
 describe('readFilters', () => {
   it('drops empty values, as a native GET sends them', () => {
@@ -44,5 +50,20 @@ describe('slugify', () => {
     ['Associação Hunter', 'associacao-hunter'],
   ])('turns %j into %j', (text, slug) => {
     expect(slugify(text)).toBe(slug);
+  });
+});
+
+describe('birthDay', () => {
+  it('formats the day and month in UTC without the year', () => {
+    expect(birthDay('1983-04-04')).toBe('4 de abril');
+  });
+});
+
+describe('arcNumber', () => {
+  it.each([
+    [5, '05'],
+    [12, '12'],
+  ])('pads %i as %j', (number, padded) => {
+    expect(arcNumber(number)).toBe(padded);
   });
 });

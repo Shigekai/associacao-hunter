@@ -1,5 +1,6 @@
 import 'server-only';
 import { connection } from 'next/server';
+import { cache } from 'react';
 import { withFilters, type SearchFilters } from '@/lib/utils';
 
 const requestTimeoutMs = 60_000;
@@ -33,6 +34,53 @@ export type CharacterSummary = {
   affiliations: string[];
   hatsus: string[];
   isLicensedHunter: boolean;
+};
+
+export type CharacterSheet = {
+  character: {
+    id: number;
+    firstName: string;
+    lastName: string | null;
+    nicknames: string[];
+    birthDate: string | null;
+    sex: string | null;
+    isAlive: boolean;
+    birthplace: string | null;
+    isLicensedHunter: boolean;
+  };
+  nen: {
+    categories: { name: string; affinityType: string }[];
+    efficiency: { category: string; percent: number | null }[];
+  };
+  abilities: {
+    name: string;
+    description: string;
+    hatsuType: string | null;
+    auraCost: number | null;
+    categories: string[];
+    conditions: { description: string; type: string }[];
+  }[];
+  items: {
+    name: string;
+    description: string;
+    isNen: boolean;
+    conjuredBy: string | null;
+    categories: string[];
+  }[];
+  affiliations: {
+    name: string;
+    type: string;
+    role: string;
+    joinedArc: string;
+    leftArc: string | null;
+    isActive: boolean;
+  }[];
+  arcs: {
+    number: number;
+    name: string;
+    startChapter: number;
+    endChapter: number | null;
+  }[];
 };
 
 function apiUrl(path: string) {
@@ -96,3 +144,14 @@ export async function searchCharacters(
   }
   return readJson<CharacterSummary[]>(response, path);
 }
+
+export const getCharacterSheet = cache(
+  async (hunterId: string): Promise<CharacterSheet | null> => {
+    const path = `/characters/${hunterId}`;
+    const response = await apiFetch(path);
+    if (response.status === 404 || response.status === 400) {
+      return null;
+    }
+    return readJson<CharacterSheet>(response, path);
+  },
+);

@@ -62,3 +62,17 @@ export function slugify(text: string) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
 }
+
+const birthDayFormat = new Intl.DateTimeFormat('pt-BR', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'UTC',
+});
+
+export function birthDay(date: string) {
+  return birthDayFormat.format(new Date(date));
+}
+
+export function arcNumber(number: number) {
+  return String(number).padStart(2, '0');
+}

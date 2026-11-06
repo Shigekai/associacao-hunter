@@ -47,6 +47,7 @@ export function HunterCard({ character, filters }: HunterCardProps) {
         <h2 className="mt-2 text-name-sm font-black uppercase font-stretch-125% desktop:mt-2.5 desktop:text-name">
           <Link
             href={huntersPath(filters, character.id)}
+            prefetch={false}
             aria-label={`Abrir ficha de ${name}`}
             className="decoration-2 underline-offset-3 after:absolute after:inset-0 desktop:hover:underline"
           >

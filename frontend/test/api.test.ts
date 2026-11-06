@@ -2,11 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   getAffiliations,
   getArcs,
+  getCharacterSheet,
   getNenCategories,
   isApiReady,
   searchCharacters,
 } from '@/lib/api';
 import { mockFetch } from './mocks/fetch';
+import { sheet } from './mocks/sheets';
 
 describe('API reads', () => {
   beforeEach(() => {
@@ -66,6 +68,34 @@ describe('API reads', () => {
 
     await expect(searchCharacters({ name: 'Gon' })).rejects.toThrow(
       'API request failed: 500 /characters?name=Gon',
+    );
+  });
+
+  it('reads a character sheet', async () => {
+    const kurapika = sheet();
+    const fetchMock = mockFetch(Response.json(kurapika));
+
+    expect(await getCharacterSheet('3')).toEqual(kurapika);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://api.test/characters/3',
+      expect.anything(),
+    );
+  });
+
+  it.each([404, 400])(
+    'answers null when the character sheet answers %i',
+    async (status) => {
+      mockFetch(new Response(null, { status }));
+
+      expect(await getCharacterSheet('9999')).toBeNull();
+    },
+  );
+
+  it('throws when the character sheet answers an error', async () => {
+    mockFetch(new Response(null, { status: 500 }));
+
+    await expect(getCharacterSheet('3')).rejects.toThrow(
+      'API request failed: 500 /characters/3',
     );
   });
 });
