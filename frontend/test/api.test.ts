@@ -27,21 +27,46 @@ describe('API reads', () => {
     );
   });
 
-  it('searches characters by an encoded name', async () => {
+  it('searches characters by the filters present', async () => {
     const fetchMock = mockFetch(Response.json([]));
 
-    await searchCharacters('Gon Freecss');
+    await searchCharacters({ name: 'Gon Freecss', arcId: '4', categoryId: '' });
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://api.test/characters?name=Gon+Freecss',
+      'http://api.test/characters?name=Gon+Freecss&arcId=4',
       expect.anything(),
     );
+  });
+
+  it('lists every character without filters', async () => {
+    const fetchMock = mockFetch(Response.json([]));
+
+    await searchCharacters({});
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://api.test/characters',
+      expect.anything(),
+    );
+  });
+
+  it('answers null when the API rejects the search (400)', async () => {
+    mockFetch(new Response(null, { status: 400 }));
+
+    expect(await searchCharacters({ arcId: 'abc' })).toBeNull();
   });
 
   it('throws when the API answers an error', async () => {
     mockFetch(new Response(null, { status: 500 }));
 
     await expect(getArcs()).rejects.toThrow('API request failed: 500 /arcs');
+  });
+
+  it('throws when the character search answers an error', async () => {
+    mockFetch(new Response(null, { status: 500 }));
+
+    await expect(searchCharacters({ name: 'Gon' })).rejects.toThrow(
+      'API request failed: 500 /characters?name=Gon',
+    );
   });
 });
 

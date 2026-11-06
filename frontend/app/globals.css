@@ -2,6 +2,10 @@
 @import './theme.css';
 
 @layer base {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
   body {
     @apply bg-paper font-sans text-ink antialiased;
   }

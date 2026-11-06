@@ -4,14 +4,14 @@ import clsx from 'clsx';
 import { useField } from 'formik';
 import { User, X } from 'lucide-react';
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { recordCount } from '@/lib/labels';
 import { controlClassName, Field } from './Field';
 import { useNameSuggestions } from './useNameSuggestions';
 
 function countLabel(total: number, shown: number) {
-  if (total > shown) {
-    return `${total} registros · mostrando ${shown}`;
-  }
-  return total === 1 ? '1 registro' : `${total} registros`;
+  return total > shown
+    ? `${recordCount(total)} · mostrando ${shown}`
+    : recordCount(total);
 }
 
 function HighlightedName({ name, query }: { name: string; query: string }) {

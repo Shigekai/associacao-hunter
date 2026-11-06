@@ -25,7 +25,7 @@ describe('GET /api/hunters/suggestions', () => {
 
     const response = await GET(request('?name=o'));
 
-    expect(searchCharacters).toHaveBeenCalledWith('o');
+    expect(searchCharacters).toHaveBeenCalledWith({ name: 'o' });
     expect(await response.json()).toEqual({
       total: 7,
       suggestions: [
@@ -45,7 +45,7 @@ describe('GET /api/hunters/suggestions', () => {
 
     const response = await GET(request('?name=%20rato%20'));
 
-    expect(searchCharacters).toHaveBeenCalledWith('rato');
+    expect(searchCharacters).toHaveBeenCalledWith({ name: 'rato' });
     expect(await response.json()).toEqual({
       total: 1,
       suggestions: [{ id: 6, name: 'Kurapika' }],
@@ -61,6 +61,14 @@ describe('GET /api/hunters/suggestions', () => {
       expect(await response.json()).toEqual({ total: 0, suggestions: [] });
     },
   );
+
+  it('answers an empty list when the API rejects the term', async () => {
+    vi.mocked(searchCharacters).mockResolvedValue(null);
+
+    const response = await GET(request('?name=gon'));
+
+    expect(await response.json()).toEqual({ total: 0, suggestions: [] });
+  });
 
   it('answers 502 when the API fails', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
