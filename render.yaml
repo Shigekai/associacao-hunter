@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: associacao-hunter-api
+    runtime: node
+    plan: free
+    region: ohio
+    branch: main
+    rootDir: backend
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false

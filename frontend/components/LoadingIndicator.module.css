@@ -1,0 +1,41 @@
+.bar {
+  animation: slide 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+.dot {
+  animation: blink 1.2s ease-in-out infinite;
+}
+
+.dot:nth-of-type(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-of-type(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(260%);
+  }
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .dot {
+    animation: none;
+  }
+}

@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import './theme.css';
+
+@layer base {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  body {
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
