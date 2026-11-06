@@ -48,9 +48,28 @@ export function SheetDialog({ close, children }: SheetDialogProps) {
     dialog.removeAttribute('open');
     dialog.showModal();
     dialog.focus();
+    let pressedOnVeil = false;
+    let releasedOnVeil = false;
+    const press = (event: PointerEvent) => {
+      pressedOnVeil = event.target === dialog;
+    };
+    const release = (event: PointerEvent) => {
+      releasedOnVeil = event.target === dialog;
+    };
+    const dismiss = (event: MouseEvent) => {
+      if (pressedOnVeil && releasedOnVeil && event.target === dialog) {
+        dialog.close();
+      }
+    };
     dialog.addEventListener('close', navigate);
+    dialog.addEventListener('pointerdown', press);
+    dialog.addEventListener('pointerup', release);
+    dialog.addEventListener('click', dismiss);
     return () => {
       dialog.removeEventListener('close', navigate);
+      dialog.removeEventListener('pointerdown', press);
+      dialog.removeEventListener('pointerup', release);
+      dialog.removeEventListener('click', dismiss);
       dialog.close();
     };
   }, [close, router]);
@@ -61,7 +80,7 @@ export function SheetDialog({ close, children }: SheetDialogProps) {
       open
       tabIndex={-1}
       aria-labelledby={titleId}
-      className="fixed inset-0 z-50 m-0 size-full max-h-none max-w-none overflow-y-auto overscroll-contain border-0 bg-white p-0 text-ink outline-none backdrop:bg-transparent desktop:bg-veil desktop:px-6 desktop:py-12"
+      className="fixed inset-0 z-50 m-0 size-full max-h-none max-w-none overflow-y-auto overscroll-contain border-0 bg-white p-0 text-ink outline-none backdrop:bg-transparent desktop:bg-veil desktop:px-6 desktop:py-8"
     >
       <SheetTitleIdContext value={titleId}>{children}</SheetTitleIdContext>
     </dialog>
