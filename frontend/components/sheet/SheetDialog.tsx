@@ -48,9 +48,28 @@ export function SheetDialog({ close, children }: SheetDialogProps) {
     dialog.removeAttribute('open');
     dialog.showModal();
     dialog.focus();
+    let pressedOnVeil = false;
+    let releasedOnVeil = false;
+    const press = (event: PointerEvent) => {
+      pressedOnVeil = event.target === dialog;
+    };
+    const release = (event: PointerEvent) => {
+      releasedOnVeil = event.target === dialog;
+    };
+    const dismiss = (event: MouseEvent) => {
+      if (pressedOnVeil && releasedOnVeil && event.target === dialog) {
+        dialog.close();
+      }
+    };
     dialog.addEventListener('close', navigate);
+    dialog.addEventListener('pointerdown', press);
+    dialog.addEventListener('pointerup', release);
+    dialog.addEventListener('click', dismiss);
     return () => {
       dialog.removeEventListener('close', navigate);
+      dialog.removeEventListener('pointerdown', press);
+      dialog.removeEventListener('pointerup', release);
+      dialog.removeEventListener('click', dismiss);
       dialog.close();
     };
   }, [close, router]);
