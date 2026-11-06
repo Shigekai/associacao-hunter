@@ -10,7 +10,7 @@
     @apply bg-paper font-sans text-ink antialiased;
   }
 
-  body:has(dialog:modal) {
+  body:has(dialog[open]) {
     overflow: hidden;
   }
 
