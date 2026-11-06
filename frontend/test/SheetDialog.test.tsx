@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SheetDialog, SheetTitle } from '@/components/sheet/SheetDialog';
@@ -56,6 +56,78 @@ describe('SheetDialog', () => {
     screen.getByRole<HTMLDialogElement>('dialog').close();
 
     expect(router.replace).toHaveBeenCalledWith('/hunters?arcId=4');
+    expect(router.back).not.toHaveBeenCalled();
+  });
+
+  it('closes when the veil itself is clicked', () => {
+    mockDialog();
+    const router = mockRouter();
+
+    render(
+      <SheetDialog close="back">
+        <SheetTitle>Kurapika</SheetTitle>
+      </SheetDialog>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.pointerDown(dialog);
+    fireEvent.pointerUp(dialog);
+    fireEvent.click(dialog);
+
+    expect(router.back).toHaveBeenCalledOnce();
+  });
+
+  it('stays open when the click lands inside the sheet', () => {
+    mockDialog();
+    const router = mockRouter();
+
+    render(
+      <SheetDialog close="back">
+        <SheetTitle>Kurapika</SheetTitle>
+      </SheetDialog>,
+    );
+
+    const title = screen.getByRole('heading', { name: 'Kurapika' });
+    fireEvent.pointerDown(title);
+    fireEvent.pointerUp(title);
+    fireEvent.click(title);
+
+    expect(router.back).not.toHaveBeenCalled();
+  });
+
+  it('stays open when a press inside the sheet is released on the veil', () => {
+    mockDialog();
+    const router = mockRouter();
+
+    render(
+      <SheetDialog close="back">
+        <SheetTitle>Kurapika</SheetTitle>
+      </SheetDialog>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.pointerDown(screen.getByRole('heading', { name: 'Kurapika' }));
+    fireEvent.pointerUp(dialog);
+    fireEvent.click(dialog);
+
+    expect(router.back).not.toHaveBeenCalled();
+  });
+
+  it('stays open when a press on the veil is released inside the sheet', () => {
+    mockDialog();
+    const router = mockRouter();
+
+    render(
+      <SheetDialog close="back">
+        <SheetTitle>Kurapika</SheetTitle>
+      </SheetDialog>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.pointerDown(dialog);
+    fireEvent.pointerUp(screen.getByRole('heading', { name: 'Kurapika' }));
+    fireEvent.click(dialog);
+
     expect(router.back).not.toHaveBeenCalled();
   });
 

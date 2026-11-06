@@ -1,19 +1,12 @@
-import clsx from 'clsx';
 import type { ReactNode } from 'react';
 
 type SheetCardProps = {
-  className?: string;
   children: ReactNode;
 };
 
-export function SheetCard({ className, children }: SheetCardProps) {
+export function SheetCard({ children }: SheetCardProps) {
   return (
-    <div
-      className={clsx(
-        'bg-white desktop:mx-auto desktop:max-w-modal desktop:overflow-hidden desktop:rounded-2xl desktop:shadow-modal',
-        className,
-      )}
-    >
+    <div className="flex min-h-full flex-col bg-white desktop:mx-auto desktop:h-full desktop:min-h-140 desktop:max-w-modal desktop:overflow-hidden desktop:rounded-2xl desktop:shadow-modal">
       {children}
     </div>
   );
