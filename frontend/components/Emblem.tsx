@@ -1,13 +1,14 @@
-type EmblemProps = {
-  className?: string;
-};
+import type { ComponentProps } from 'react';
 
-export function Emblem({ className }: EmblemProps) {
+type EmblemProps = Pick<ComponentProps<'svg'>, 'className' | 'aria-hidden'>;
+
+export function Emblem({ className, 'aria-hidden': ariaHidden }: EmblemProps) {
   return (
     <svg
       viewBox="0 0 535.5 334"
       role="img"
       aria-label="Emblema da Associação Hunter"
+      aria-hidden={ariaHidden}
       className={className}
     >
       <path
