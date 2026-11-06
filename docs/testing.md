@@ -13,5 +13,7 @@
 | Request order or abort | `mockFetchQueue()`: each request waits until the test answers it, and aborting rejects it like the real `fetch` |
 | `useRouter` | `mockRouter()`, with `vi.mock('next/navigation')` in the test file |
 | `notFound()` | `mockNotFound()`, with `vi.mock('next/navigation')`: the automock returns, so the component would keep rendering. Assert `rejects.toBe(notFoundError)` |
+| `<dialog>` (`showModal` / `close`) | `mockDialog()` (`frontend/test/mocks/dialog.ts`): jsdom 30 doesn't implement either method |
+| `React.cache` | No-op outside the `react-server` build condition; verify deduplication end-to-end against the backend |
 | `<search>` landmark | Testing Library's `aria-query` doesn't map it to the `search` role yet: reach the form through its submit button |
 | Native behavior jsdom lacks (`inert`, form restore) | Check it in a real browser (Playwright, Chrome and WebKit) |
