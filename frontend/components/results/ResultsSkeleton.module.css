@@ -1,0 +1,41 @@
+.pulse {
+  animation: pulse 1.8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.scan {
+  animation: scan 1.8s cubic-bezier(0.6, 0, 0.4, 1) infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes scan {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% - 2px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+    opacity: 0.7;
+  }
+}
